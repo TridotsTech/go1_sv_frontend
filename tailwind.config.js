@@ -6,7 +6,14 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
+    extend: {  
+      screens: {
+      'md': { 'max': '768px' },
+      'lg1': { 'max': '1024px' },
+      'lg': { 'min': '768px' },
+      'xl': { 'min': '1024px' },
+      '2xl': { 'min': '1200px' },
+    },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

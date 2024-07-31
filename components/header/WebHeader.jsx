@@ -60,7 +60,7 @@ const WebHeader = ({ website_settings }) => {
               setCustomerName(localStorage['CustomerName'])
               get_cart_item()
             } else {
-              setCustomerName()
+              setCustomerName("")
             }
         }
     
@@ -149,15 +149,15 @@ const WebHeader = ({ website_settings }) => {
                                     </div>
                                 </div>
                                 
-                                <div onClick={handleProfile} className='flex flex-col items-center md:hidden '>
+                                <div onClick={handleProfile} className='flex flex-col items-center md:hidden cursor-pointer '>
                                     <Image src={"/profile.svg"} width={25} height={25} alt='profile' />
-                                    {customerName && <p className='md:hidden'>{customerName}</p>}
+                                    {customerName && <p className='md:hidden '>{customerName}</p>}
                                 </div>
-                                <div className='relative' onClick={() => router.push("/cart")}>
+                                <div className='relative cursor-pointer' onClick={() => router.push("/cart")}>
                                     <Image src={"/shopping.svg"} width={25} height={25} alt='profile' />
                                     <p className='absolute rounded bottom-0 right-0 bg-neutral-900 -mb-2 -mr-2 text-white h-4 w-[15px]  flex flex-col items-center justify-center text-xs'>{totalqty}</p>
                                 </div>
-                                <div className='md:block lg:hidden' onClick={() => { setTrue(true), handleMenu() }}>
+                                <div className='md:block lg:hidden cursor-pointer' onClick={() => { setTrue(true), handleMenu() }}>
                                     <Image src={"/menu.svg"} width={25} height={25} alt='menu' />
                                 </div>
                             </div>

@@ -7,7 +7,7 @@ const Footer = () => {
     const router=useRouter()
   return (
     <div className={`${router.asPath.includes("/checkout")? "md:hidden":""} border-neutral-300 bg-neutral-50 `}>
-        <div className='mx-auto max-w-7xl px-4 lg:px-8'>
+        <div className='mx-auto max-w-8xl px-4 lg:px-8'>
             <div className='grid grid-cols-3 gap-8 py-16'>
                 <div>
                     <h1 className='text-[14px] font-semibold text-neutral-900'>Go1</h1>

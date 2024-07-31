@@ -35,7 +35,6 @@ import { useSelector, useDispatch } from 'react-redux';
 
 export default function Profile({ my_account, order_id }) {
  
-
   let profileDetail = [
     { 'title': 'Dashboard', icon: '/Profile/dashboard.svg', route: 'dashboard' },
     { 'title': 'My Profile', icon: '/Navbar/account.svg', route: 'edit-profile' },
@@ -89,7 +88,7 @@ export default function Profile({ my_account, order_id }) {
         window.removeEventListener('resize', checkIsMobile);
       };
     } else {
-      router.push('/login');
+      router.push('/');
     }}
 
   }, [router.query])
@@ -148,6 +147,7 @@ export default function Profile({ my_account, order_id }) {
       localStorage.clear();
       // dispatch(setRole(''))
       // dispatch(setUser(''))
+    
       router.push('/');
     } else {
       setAlertUi(false);
@@ -159,9 +159,10 @@ export default function Profile({ my_account, order_id }) {
     if (value == 'Yes' && alertUi) {
       setAlertUi(false);
       localStorage.clear();
-      // dispatch(setRole(''))
+      // dispatch(setCustomerInfo(''))
       // dispatch(setUser(''))
       router.push('/');
+      router.reload()
     } else {
       setAlertUi(false);
     }

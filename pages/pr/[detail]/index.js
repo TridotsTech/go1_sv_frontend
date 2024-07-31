@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Head from 'next/head'
+import { toast } from 'react-toastify';
 
 const Detail = ({ productDetail }) => {
     console.log(productDetail, "productDetail")
@@ -252,12 +253,23 @@ const Detail = ({ productDetail }) => {
         // setTimeout(() => { setLoader(-1) }, 500)
         if (resp.message.status == 'success') {
           get_cart_item()
-        //   UpdateSuccessToast(dataValue)
+          UpdateSuccessToast(dataValue)
         } else {
           let msg = (resp.message && resp.message.message) ? resp.message.message : 'Something went wrong try again later'
-        //   toast.error(msg);
+          toast.error(msg);
         }
       }
+
+      function UpdateSuccessToast(value) {
+        let item = value.item || value.product_name
+        toast.success(item + ' updated successfully')
+      }
+    
+      function successToast(value) {
+        let item = value.item || value.product_name
+        toast.success(item + ' added successfully')
+      }
+
     async function insert_cart(value, type) {
         value.variant_text = value.attribute ? value.attribute : value.variant_text
         let param = {
@@ -277,10 +289,10 @@ const Detail = ({ productDetail }) => {
         if (resp.message && resp.message.marketplace_items) {
             localStorage['customerRefId'] = resp.message.customer
             get_cart_item()
-            // successToast(value)
+            successToast(value)
         } else {
-            // let msg = (resp.message && resp.message.message) ? resp.message.message : 'Something went wrong try again later'
-            // // toast.error(msg);
+            let msg = (resp.message && resp.message.message) ? resp.message.message : 'Something went wrong try again later'
+            toast.error(msg);
         }
     }
 

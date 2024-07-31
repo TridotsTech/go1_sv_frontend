@@ -6,9 +6,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Head from 'next/head'
 import { toast } from 'react-toastify';
+import styles from '@/styles/checkout.module.scss';
+import { Select } from '@headlessui/react'
 
 const Detail = ({ productDetail }) => {
-    console.log(productDetail, "productDetail")
+    // console.log(productDetail, "productDetail")
     const cartItems = useSelector((state) => state.cartSettings.cartItems)
     const cartValue = useSelector((state) => state.cartSettings.cartValue)
     let [data, setData] = useState();
@@ -19,7 +21,8 @@ const Detail = ({ productDetail }) => {
     const dispatch = useDispatch()
     let [additionalInfo, setAdditionalInfo] = useState({});
     let[loader,setLoader]=useState(true)
-
+    let text_btn =true
+    let quickView =false
     useEffect(() => {
         if (typeof window != 'undefined') {
             // setApicall(true)
@@ -138,7 +141,7 @@ const Detail = ({ productDetail }) => {
                         productDetail.mainImages = productDetail.images
                         productDetail['count'] = 0;
                         productDetail['business'] = productDetail.vendor_price_list[0].business
-                        // checkVariantInfo(productDetail)
+                        checkVariantInfo(productDetail)
 
                     } else {
                         productDetail['count'] = 0;
@@ -175,6 +178,28 @@ const Detail = ({ productDetail }) => {
             get_product_details()
         }
     }, [cartValue])
+
+    function checkVariantInfo(productDetail){
+        // setImagesList(productDetail)
+        let ids = '';
+        let selected_attribute = '';
+        productDetail['product_attributes'].map(res => {
+            res.options.map(data => {
+              if (data.is_pre_selected == 1) {
+                ids += data.name + '\n';
+                selected_attribute += ' <div class="attribute"><span class="attr-title">' + res.attribute + '</span> : <span>' + data.option_value + '</span> </div>'
+              }
+            })
+        })
+
+ 
+        productDetail['attribute'] = '<div class="cart-attributes">' + selected_attribute + '</div>'
+        productDetail['attribute_id'] = ids
+
+        // checkWishlist(productDetail)
+        // setData(data);
+        productQty(productDetail)
+    }
 
     function addCart(value, index, type) {
 
@@ -334,6 +359,8 @@ const Detail = ({ productDetail }) => {
                 <div className='flex flex-col pt-6 sm:col-span-1 sm:px-6 sm:pt-0 lg:col-span-3 lg:pt-16'>
                     <div>
                         <h1 className='mb-4 flex-auto text-3xl font-medium tracking-tight text-neutral-900'>{data?.item}</h1>
+                        {data?.has_variants == 1 ? <Attributes data={data} setData={setData} styles={styles} checkVariantInfo={checkVariantInfo} /> : <></>}
+
                         {data?.stock > 0 ? <p className='mb-8'>{`$${data?.price}`}</p> : <div className='my-6 flex items-center'><Image src={"/cancel.svg"} width={15} height={15} alt='cancel' /><p className='ml-1 text-base font-semibold text-neutral-500'>Out of stock</p></div>}
 
                         {loader ? <button aria-disabled="true" aria-busy="false" onClick={() => data && data?.stock == 0?null:addCart(data, varActive, 'inc')} className={`h-12 mb-8 items-center rounded-md  px-6 py-3 text-base font-medium leading-6 text-white shadow ${data && data?.stock > 0 ? "bg-neutral-900 hover:bg-neutral-800" : "bg-neutral-900 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70 hover:disabled:bg-neutral-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-70 hover:aria-disabled:bg-neutral-700"} `}>Add to cart</button>:<button aria-disabled="true" aria-busy="true" className='h-12 mb-8 items-center rounded-md  px-6 py-3 text-base font-medium leading-6 text-white shadow  bg-neutral-900 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70 hover:disabled:bg-neutral-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-70 hover:aria-disabled:bg-neutral-700'>Processing...</button>}
@@ -367,4 +394,121 @@ export async function getServerSideProps(context) {
     return {
         props: { productDetail }
     }
+}
+
+const Attributes = ({data, styles, checkVariantInfo,setData}) =>{
+
+    // const [option,setOption] = useState('')
+    // let [defaultSelectedOption, setDefaultSelectedOption] = useState(null);
+
+    // useEffect(()=>{
+    //     if(data.product_attributes && data.product_attributes.length != 0){
+    //         data.product_attributes = data.product_attributes.filter(res=>{ return res.options.length != 0 })
+    //         let dropdown = data.product_attributes.find(res=>{return res.control_type == 'Dropdown List' })
+    //         if(dropdown){
+    //         //   dropdown.options[1].is_pre_selected = 1   
+    //           let option =  dropdown.options.find(res=>{return res.is_pre_selected == 1})
+    //         //   if(option){
+    //         //     setDefaultSelectedOption(option)
+    //         //   } 
+    //         }
+    //     }
+    // },[])
+
+    const setAttribute = (array, obj, index) =>{
+       
+        obj.is_pre_selected = 1
+        array.map((r,i)=>{
+          if(i != index){
+            r.is_pre_selected = 0;
+          }
+        })
+        setData(data)
+        // setOption(obj.option_value)
+        checkVariantInfo(data);
+    }
+
+    const handleChange = (selectedOption,array) => {
+        array.map((r,j)=>{
+            if(r.name == selectedOption.value){
+                setAttribute(array,r,j)
+            }
+        })
+    };
+
+    return(
+      <>
+        {data.product_attributes.length != 0 && 
+          data.product_attributes.map((attr,index)=>{
+            return(
+               <div className='your-element' key={index}>
+                 <h5 className='text-[14px] font-medium mb-[5px]'>{attr.attribute}</h5>
+                 <div className='flex items-center flex-wrap gap-[7px] mb-[7px]'>
+                    {/* {attr.options.map((opt,j)=>{
+                     return(
+                      <> */}
+
+                       {attr.control_type == 'Radio Button List' &&
+                         attr.options.map((opt,j)=>{
+                            return(
+                              <div key={j} onClick={() => {setAttribute(attr.options,opt,j)}} className={`border-[1px] border-slate-100 p-[5px_8px] cursor-pointer flex items-center gap-[5px] rounded-[5px]`}>
+                                <input className={styles.input_radio} checked={opt.is_pre_selected == 1} type="radio" />
+                                <h5 className='text-[12px] font-medium capitalize'>{opt.option_value}</h5>
+                               </div>
+                            )
+                         })
+                        }
+
+                       {attr.control_type == 'Color Boxes' &&
+                        attr.options.map((opt,j)=>{
+                        return(
+                         <div key={j} onClick={() => setAttribute(attr.options,opt,j)} className={`${opt.is_pre_selected == 1 ? 'border-[#000]' : 'border-slate-100 '} ${opt.attribute_color ? ' w-[30px]' : ' w-max'} h-[30px] border-[1px] cursor-pointer flex items-center justify-center gap-[5px] rounded-[5px]`}>
+                          {opt.attribute_color ? 
+                           <div style={{background:opt.attribute_color}} className={`h-[20px] w-[20px] rounded-[5px]`}></div> 
+                           :
+                          <h5 className='text-[12px] font-medium capitalize p-[0px_8px]'>{opt.option_value}</h5>
+                          }
+                         </div>
+                         )})
+                       }
+
+                       {attr.control_type == 'Checkbox List' &&
+                        attr.options.map((opt,j)=>{
+                        return(
+                            <div key={j} onClick={() => setAttribute(attr.options,opt,j)} className='checkbox flex items-center gap-[6px] min-h-[30px] cursor-pointer mr-[5px]'>
+                                <input type="checkbox" checked={opt.is_pre_selected == 1} className="w-[16px] h-[16px] rounded-[5px] cursor-pointer"></input>
+                                <span className='text-[12px] font-medium capitalize'>{opt.option_value}</span>
+                            </div>  
+                        )})
+                       }
+
+                       {attr.control_type == 'Dropdown List' &&
+                           <Select className={`${styles.custom_input3} w-max`}
+                             placeholder={"Select " + attr.attribute}
+                              //  options={attr.options}
+                            //  defaultValue={
+                            //     defaultSelectedOption && defaultSelectedOption['name']
+                            //     ? { value: defaultSelectedOption['name'], label: defaultSelectedOption['option_value'] }
+                            //     : null
+                            //  } 
+                             onChange={(e)=>handleChange(e,attr.options)}
+                             options={attr.options.map(item => ({
+                                value: item.name,
+                                label: item.option_value
+                            }))}
+                           />                         
+                        }
+
+                      {/* </> 
+                    
+                     )
+                    })} */}
+                 </div>
+                 
+               </div> 
+            )
+          })
+        }
+      </>
+    )
 }

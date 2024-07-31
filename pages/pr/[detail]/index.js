@@ -1,9 +1,10 @@
-import { check_Image, delete_cart_items, get_cart_items, get_product_detail, insert_cart_items, update_cartitem, validate_attributes_stock } from '@/libs/api'
+import { check_Image, delete_cart_items, get_cart_items, get_product_detail, getCurrentUrl, insert_cart_items, seo_Image, update_cartitem, validate_attributes_stock } from '@/libs/api'
 import { setCartItems } from '@/redux/slice/cartSettings'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import Head from 'next/head'
 
 const Detail = ({ productDetail }) => {
     console.log(productDetail, "productDetail")
@@ -292,6 +293,22 @@ const Detail = ({ productDetail }) => {
     }
 
     return (
+        <>
+    
+        <Head>
+        <title>{productDetail?.meta_title}</title>
+        <meta name="description" content={productDetail?.meta_description} />
+        <meta property="og:type" content={'Blog'} />
+        <meta property="og:title" content={productDetail?.meta_title} />
+        <meta key="og_description" property="og:description" content={productDetail?.meta_description} />
+        <meta property="og:image" content={seo_Image(productDetail?.meta_image)}></meta>
+        <meta property="og:url" content={getCurrentUrl(router.asPath)}></meta>
+        <meta name="twitter:image" content={seo_Image(productDetail?.meta_image)}></meta>
+        <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.12/css/lightgallery.min.css"/>
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.12/dist/js/lightgallery.min.js"></script>
+      </Head>
+
         <section className="mx-auto max-w-7xl p-8 pb-16">
          
             <div className='grid lg:grid-cols-8'>
@@ -313,6 +330,7 @@ const Detail = ({ productDetail }) => {
                 </div>
             </div>
         </section>
+        </>
     )
 }
 

@@ -1,10 +1,33 @@
 import ProductBox from '@/components/Product/ProductBox'
-import { get_category_products } from '@/libs/api'
-import React from 'react'
+import { get_category_filters, get_category_products, getCurrentUrl, seo_Image } from '@/libs/api'
+import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 
-const index = ({data,productRoute}) => {
+const Index = ({data,productRoute,filterInfo, currentId}) => {
     console.log(data,"list")
+    const router = useRouter();
+  const [filtersList, setFiltersList] = useState();
+  const [currentRoute, setCurrentRoute] = useState()
+    useEffect(()=>{
+      if (typeof window != 'undefined') {
+      setFiltersList(filterInfo)
+      setCurrentRoute(currentId)
+    }
+    })
   return (
+    <>
+    <Head>
+        <title>{filterInfo?.meta_info?.meta_title}</title>
+        <meta name="description" content={filterInfo?.meta_info?.meta_description} />
+        <meta property="og:type" content={'List'} />
+        <meta property="og:title" content={filterInfo?.meta_info?.meta_title} />
+        <meta key="og_description" property="og:description" content={filterInfo?.meta_info?.meta_description} />
+        <meta property="og:image" content={seo_Image(filterInfo?.meta_info?.meta_image)}></meta>
+        <meta property="og:url" content={getCurrentUrl(router.asPath)}></meta>
+        <meta name="twitter:image" content={seo_Image(filterInfo?.meta_info?.meta_image)}></meta>
+      </Head>
+
     <div className="flex min-h-[calc(100dvh-64px)] flex-col">
     <main className={`flex-1`}>
             <section className="mx-auto max-w-8xl p-8 pb-16">
@@ -12,10 +35,11 @@ const index = ({data,productRoute}) => {
             </section>
     </main>
   </div>
+    </>
   )
 }
 
-export default index
+export default Index
 
 export async function getServerSideProps({params}){
     let productRoute = ''
@@ -37,7 +61,18 @@ export async function getServerSideProps({params}){
           notFound: true,
         }
       }
+      let filterInfo = ''
+      let currentId = ''
+    
+      let datas = { "route": productRoute }
+      let res = await get_category_filters(datas);
+      if (res && res.message) {
+        filterInfo = res.message
+        if (res.message.category_list && res.message.category_list.current_category && res.message.category_list.current_category.category_name) {
+          currentId = res.message.category_list.current_category
+        }
+      }
   return{
-    props:{data,productRoute}
+    props:{data,productRoute, filterInfo, currentId}
   }
 }
